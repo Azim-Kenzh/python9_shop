@@ -1,54 +1,69 @@
 from django.http import Http404
 from django.shortcuts import render, get_list_or_404, get_object_or_404
+from django.views.generic import ListView, DetailView
+from django.views.generic.base import View
 
-# Create your views here.
 from product.models import Category, Product
 
 
-def homepage(request):
-    categories = Category.objects.all()
-    return render(request, 'product/index.html', {'categories': categories})
+# def homepage(request):
+#     categories = Category.objects.all()
+#     return render(request, 'product/index.html', {'categories': categories})
 
 
+# class HomePageView(View):
+#     def get(self, request):
+#         categories = Category.objects.all()
+#         return render(request, 'product/index.html', {'categories': categories})
+#
 
-#prodicts/category
+class HomePageView(ListView):
+    model = Category
+    template_name = 'product/index.html'
+    context_object_name = 'categories'
+
+
 # def products_list(request, category_slug):
-#     # products = Product.objects.all()
-#
-#     # if not Category.objects.filter(slug=category_slug).exists():
-#     #     raise  Http404
-#     # products = Product.objects.filter(category_id=category_slug)
-#
-#     # category = get_object_or_404(Category,  slug=category_slug)
-#     # products = Product.objects.filter(category=category)
-#
-#     products = get_list_or_404(Product, category_id=category_slug)
-#     # select * from product where category_id = category_slug
+#     if not Category.objects.filter(slug=category_slug).exists():
+#         raise Http404('Нет такой категории')
+#     products = Product.objects.filter(category_id=category_slug)
 #     return render(request, 'product/products_list.html', {'products': products})
 
-# #products/?category=slug
-# def products_list2(request):
-#     category_clug = request.GET.get('category')
-#     products = Product.objects.all()
-#     if category_clug is not None:
-#         products = products.filter(category_id=category_slug)
-#      return render(request, '', {'products': products})
 
-def products_list(request, category_slug):
-    if not Category.objects.filter(slug=category_slug).exists():
-        raise Http404('Нет такой категории')
-    products = Product.objects.filter(category_id=category_slug)
-    return render(request, 'product/products_list.html', {'products': products})
+# class ProductsListView(View):
+#     def get(self, request, category_slug):
+#         if not Category.objects.filter(slug=category_slug).exists():
+#             raise Http404('Нет такой категории')
+#         products = Product.objects.filter(category_id=category_slug)
+#         return render(request, 'product/products_list.html', {'products': products})
+
+class ProductsListView(ListView):
+    model = Product
+    template_name = 'product/products_list.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        category_slug = self.kwargs.get('category_slug')
+        if not Category.objects.filter(slug=category_slug).exists():
+            raise Http404('Нет такой категории')
+        queryset = queryset.filter(category_id=category_slug)
+        return queryset
+
+    # def get(self,request, category_slug):
+    #     if not Category.objects.filter(slug=category_slug).exists():
+    #         raise Http404('Нет такой категории')
+    #     products = self.get_queryset().filter(category_id=category_slug)
+    #     return render(request, 'product/products_list.html', {'products': products})
 
 
-def product_details(request, product_id):
-    product =  get_object_or_404(Product, id=product_id)
-    return render(request, 'product/product_details.html', {'product': product})
-    # product = Product.objects.get(id=product_id)
+
+#
+# def product_details(request, product_id):
+#     product = get_object_or_404(Product, id=product_id)
+#     return render(request, 'product/product_details.html', {'product': product})
 
 
-#TODO: переписать вьюшку products_list / + + +
-#TODO: подключить картинки для товаров / + + +
-#TODO: добавить детали продукта /
-#TODO: переписать вьюшку на CBV(Class-Based Views)
-#TODO: сделать переход из категории в листинг продуктов
+class ProductDeatilsView(DetailView):
+    model = Product
+    template_name = 'product/product_details.html'

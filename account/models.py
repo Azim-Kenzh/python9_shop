@@ -34,7 +34,7 @@ class User(AbstractBaseUser):
     activation_code = models.CharField(max_length=15, blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS =  []
+    REQUIRED_FIELDS = []
 
     objects = UserManager()
 
@@ -44,10 +44,17 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return self.is_staff
 
+    def create_activation_code(self):
+        from django.utils.crypto import get_random_string
+        code = get_random_string(15)
+        if User.objects.filter(activation_code=code).exists():
+            self.create_activation_code()
+        self.activation_code = code
+        self.save(update_fields=['activation_code'])
 
 # TODO: Отображение продуктов и категорий +++++
-# TODO: Регистрация, Активация, ЛОгин
-# TODO: Загрузка и отображение картинок
+# TODO: Загрузка и отображение картинок ++++++
+# TODO: Регистрация, Активация, ЛОгин ++++
 # TODO: Верстка
 # TODO: Формы
 # TODO: CRUD
