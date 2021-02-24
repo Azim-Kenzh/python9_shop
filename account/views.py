@@ -32,9 +32,6 @@ class SuccessfulRegistrationView(View):
     def get(self, request):
         return render(request, 'account/successfully_registration.html', {})
 
-class LogoutView():
-    pass
-
 class ForgotPassword():
     pass
 
