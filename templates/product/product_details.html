@@ -5,8 +5,12 @@
 <p>{{ product.title }}</p>
 <p>{{ product.description }}</p>
 <p>{{ product.price }}</p>
-
 {% for image in product.images.all %}
+    {% if image.image %}
 <img width="100" height="100" src="{{ image.get_image_url }}">
+    {% endif %}
 {% endfor %}
+
+<a href="{% url 'product-edit' product.id %}"><button type="button"> Редактровать </button></a>
+<a href="{% url 'product-delete' product.id %}" role="button"> Удалить </a>
 {% endblock body %}
